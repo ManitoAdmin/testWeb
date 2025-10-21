@@ -1,103 +1,399 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Formulario de Registro</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    form {
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      width: 300px;
-    }
-    h2 {
-      text-align: center;
-      color: #333;
-    }
-    label {
-      display: block;
-      margin-top: 10px;
-      color: #555;
-    }
-    input, textarea, button {
-      width: 100%;
-      margin-top: 5px;
-      padding: 8px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-    button {
-      background: #4CAF50;
-      color: white;
-      border: none;
-      margin-top: 15px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    button:hover {
-      background: #45a049;
-    }
-    #mensaje {
-      text-align: center;
-      margin-top: 10px;
-      color: green;
-    }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Tirar moneda — Cara o Sello</title>
+<style>
+  :root{
+    --bg:#f3f6fb;
+    --card:#ffffff;
+    --accent:#0b74de;
+    --muted:#6b7280;
+    --success:#16a34a;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background:linear-gradient(180deg,var(--bg),#eaf1fb);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    color:#0f172a;
+  }
+
+  .wrap{
+    width:100%;
+    max-width:960px;
+    background:var(--card);
+    border-radius:12px;
+    box-shadow:0 8px 30px rgba(11,20,40,0.08);
+    padding:24px;
+    display:grid;
+    grid-template-columns: 1fr 320px;
+    gap:20px;
+    align-items:start;
+  }
+
+  header{
+    grid-column:1 / -1;
+    display:flex;
+    align-items:center;
+    gap:16px;
+  }
+  header h1{margin:0;font-size:1.25rem}
+  header p{margin:0;color:var(--muted);font-size:0.95rem}
+
+  /* Coin area */
+  .main {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:18px;
+  }
+  .stage{
+    perspective:1200px;
+    width:220px;
+    height:220px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .coin {
+    width:180px;
+    height:180px;
+    border-radius:50%;
+    position:relative;
+    transform-style:preserve-3d;
+    transition: transform 1.2s cubic-bezier(.2,.9,.3,1);
+    box-shadow: 0 10px 30px rgba(11,20,40,0.15), inset 0 -6px 18px rgba(0,0,0,0.06);
+    background: linear-gradient(180deg,#ffd27a,#ffc34a);
+    border:6px solid #d99f2a;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:700;
+    font-size:20px;
+    color:#3b2b00;
+  }
+
+  .coin .face {
+    position:absolute;
+    width:100%;
+    height:100%;
+    border-radius:50%;
+    backface-visibility:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:12px;
+    text-align:center;
+  }
+
+  .coin .cara {
+    transform: translateZ(12px) rotateY(0deg);
+    background: linear-gradient(180deg,#fff8e6,#fff0c9);
+    color:#2f2f2f;
+    border-radius:50%;
+  }
+
+  .coin .sello {
+    transform: rotateY(180deg) translateZ(12px);
+    background: linear-gradient(180deg,#e6f4ff,#dff0ff);
+    color:#063a6b;
+    border-radius:50%;
+  }
+
+  .controls{
+    display:flex;
+    gap:12px;
+    width:100%;
+    justify-content:center;
+  }
+  button{
+    cursor:pointer;
+    border:0;
+    padding:10px 16px;
+    border-radius:8px;
+    font-weight:600;
+    font-size:0.95rem;
+  }
+  .btn-flip{ background:linear-gradient(90deg,var(--accent),#005bb5); color:#fff; box-shadow:0 6px 18px rgba(11,20,40,0.12)}
+  .btn-random{ background:#fff; border:1px solid #e6eefb; color:var(--accent) }
+  .btn-clear{ background:#fff; border:1px dashed #e5e7eb; color:var(--muted) }
+
+  .result{
+    margin-top:6px;
+    font-weight:700;
+    font-size:1.1rem;
+    color:var(--muted);
+  }
+
+  /* Sidebar */
+  .sidebar{
+    background:#fbfdff;
+    border-radius:10px;
+    padding:16px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.6);
+  }
+  .stats{ display:flex; gap:10px; margin-bottom:12px; }
+  .stat{
+    flex:1;
+    background:linear-gradient(180deg,#fff,#fbfbff);
+    padding:10px;
+    border-radius:8px;
+    text-align:center;
+    border:1px solid #f1f5f9;
+  }
+  .stat h3{ margin:0; font-size:1.1rem; color:var(--accent) }
+  .stat p{ margin:4px 0 0 0; color:var(--muted); font-size:0.9rem }
+
+  .history {
+    max-height:320px;
+    overflow:auto;
+    margin-top:8px;
+    border-radius:8px;
+    border:1px solid #eef2ff;
+  }
+  .history ul{ list-style:none; padding:8px; margin:0; }
+  .history li{
+    display:flex;
+    justify-content:space-between;
+    padding:8px;
+    border-radius:6px;
+    margin-bottom:6px;
+    background:linear-gradient(180deg,#fff,#fbfdff);
+    font-size:0.95rem;
+    border:1px solid #f1f5ff;
+  }
+  .history li .side { font-weight:700 }
+  .history li .time { color:var(--muted); font-size:0.85rem }
+
+  .footer-note{ font-size:0.85rem; color:var(--muted); margin-top:12px; text-align:center }
+
+  /* small screens */
+  @media (max-width:880px){
+    .wrap{ grid-template-columns: 1fr; padding:18px }
+    .sidebar{ order:2 }
+  }
+
+  /* .animate-flip is toggled to animate coin rotation */
+  .animate-flip { transition: transform 1.1s cubic-bezier(.2,.9,.3,1) }
+</style>
 </head>
 <body>
-  <form id="formulario">
-    <h2>Registro</h2>
-    <label>Nombre:</label>
-    <input type="text" id="nombre" required>
+  <div class="wrap" role="application" aria-labelledby="title">
+    <header>
+      <div>
+        <h1 id="title">Tirar moneda — Cara o Sello</h1>
+        <p>Proyecto estático — listo para GitHub Pages. Presiona <kbd>Espacio</kbd> o <kbd>Enter</kbd> para tirar.</p>
+      </div>
+    </header>
 
-    <label>Correo:</label>
-    <input type="email" id="correo" required>
+    <main class="main" aria-live="polite">
+      <div class="stage" aria-hidden="false">
+        <div id="coin" class="coin" role="img" aria-label="Moneda, sin lanzar">
+          <div class="face cara">CARA</div>
+          <div class="face sello">SELLO</div>
+        </div>
+      </div>
 
-    <label>Mensaje:</label>
-    <textarea id="mensajeTxt" rows="3" required></textarea>
+      <div class="controls" role="group" aria-label="Controles de lanzamiento">
+        <button id="btnFlip" class="btn-flip" title="Tirar moneda">🎲 Tirar</button>
+        <button id="btnQuick" class="btn-random" title="Generar resultado aleatorio sin animación">🔀 Aleatorio</button>
+        <button id="btnClear" class="btn-clear" title="Borrar historial">🧹 Limpiar</button>
+      </div>
 
-    <button type="submit">Guardar</button>
-    <p id="mensaje"></p>
-  </form>
+      <div class="result" id="lastResult">Último resultado: —</div>
+      <div class="footer-note">Probabilidad ~50% — perfecto para demos y portafolio.</div>
+    </main>
 
-  <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbyaim4rbbFOHFz0bIeN1SFwUfbnvj6N1z-HGv5XCzfgZBsuN1f1ebMfYCee0AUn_rRnBQ/exec"; // <-- cambia esto
+    <aside class="sidebar" aria-labelledby="statsTitle">
+      <h2 id="statsTitle" style="margin-top:0">Estadísticas</h2>
+      <div class="stats" role="list">
+        <div class="stat" role="listitem">
+          <h3 id="countCara">0</h3>
+          <p>Cara</p>
+        </div>
+        <div class="stat" role="listitem">
+          <h3 id="countSello">0</h3>
+          <p>Sello</p>
+        </div>
+      </div>
 
-    document.getElementById("formulario").addEventListener("submit", e => {
-      e.preventDefault();
+      <div><strong>Historial</strong></div>
+      <div class="history" aria-live="polite">
+        <ul id="historyList" aria-label="Historial de lanzamientos">
+          <!-- items -->
+        </ul>
+      </div>
+      <div style="margin-top:10px; color:var(--muted); font-size:0.9rem">
+        Los resultados se guardan en tu navegador (localStorage).
+      </div>
+    </aside>
+  </div>
 
-      const data = {
-        nombre: document.getElementById("nombre").value,
-        correo: document.getElementById("correo").value,
-        mensaje: document.getElementById("mensajeTxt").value
-      };
+<script>
+(function(){
+  const coin = document.getElementById('coin');
+  const btnFlip = document.getElementById('btnFlip');
+  const btnQuick = document.getElementById('btnQuick');
+  const btnClear = document.getElementById('btnClear');
+  const lastResultEl = document.getElementById('lastResult');
+  const historyList = document.getElementById('historyList');
+  const countCara = document.getElementById('countCara');
+  const countSello = document.getElementById('countSello');
 
-      fetch(scriptURL, {
-        method: "POST",
-        body: JSON.stringify(data)
-      })
-      .then(response => {
-        if (response.ok) {
-          document.getElementById("mensaje").textContent = "✅ Datos guardados correctamente.";
-          document.getElementById("formulario").reset();
-        } else {
-          document.getElementById("mensaje").textContent = "⚠️ Error al guardar.";
-        }
-      })
-      .catch(() => {
-        document.getElementById("mensaje").textContent = "❌ Error de conexión.";
-      });
+  const STORAGE_KEY = 'moneda_historial_v1';
+
+  // State
+  let history = loadHistory();
+  renderAll();
+
+  // Helper: random 0/1
+  function randomSide(){
+    return Math.random() < 0.5 ? 'CARA' : 'SELLO';
+  }
+
+  // Render functions
+  function renderAll(){
+    renderStats();
+    renderHistory();
+    if(history.length>0){
+      lastResultEl.textContent = `Último resultado: ${history[0].side} (${formatTime(history[0].time)})`;
+    } else {
+      lastResultEl.textContent = 'Último resultado: —';
+    }
+  }
+
+  function renderStats(){
+    const cara = history.filter(h => h.side === 'CARA').length;
+    const sello = history.filter(h => h.side === 'SELLO').length;
+    countCara.textContent = cara;
+    countSello.textContent = sello;
+  }
+
+  function renderHistory(){
+    historyList.innerHTML = '';
+    if(history.length === 0){
+      const li = document.createElement('li');
+      li.style.justifyContent = 'center';
+      li.style.color = '#94a3b8';
+      li.textContent = 'Sin lanzamientos aún';
+      historyList.appendChild(li);
+      return;
+    }
+    history.forEach(item => {
+      const li = document.createElement('li');
+      const side = document.createElement('div');
+      side.className = 'side';
+      side.textContent = item.side;
+      side.style.color = item.side === 'CARA' ? '#995400' : '#073a82';
+
+      const time = document.createElement('div');
+      time.className = 'time';
+      time.textContent = formatTime(item.time);
+
+      li.appendChild(side);
+      li.appendChild(time);
+      historyList.appendChild(li);
     });
-  </script>
+  }
+
+  function formatTime(ts){
+    const d = new Date(ts);
+    return d.toLocaleString();
+  }
+
+  // Save/load
+  function saveHistory(){
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+    } catch(e){}
+  }
+  function loadHistory(){
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return [];
+      return JSON.parse(raw);
+    } catch(e){
+      return [];
+    }
+  }
+
+  // Flip animation
+  let animating = false;
+  function animateFlip(toSide, withAnimation = true){
+    if(animating) return;
+    animating = true;
+    // number of half-rotations random between 3 and 7 for variety
+    const flips = Math.floor(Math.random()*5) + 3;
+    const degrees = flips * 180 + (toSide === 'SELLO' ? 180 : 0);
+    if(withAnimation){
+      coin.style.transition = 'transform 1.2s cubic-bezier(.2,.9,.3,1)';
+      coin.style.transform = `rotateY(${degrees}deg)`;
+      // after animation finishes, small timeout to ensure final state set
+      setTimeout(() => {
+        animating = false;
+        coin.style.transition = '';
+        // normalize rotation to 0/180 to avoid huge rotate accumulation
+        coin.style.transform = toSide === 'CARA' ? 'rotateY(0deg)' : 'rotateY(180deg)';
+      }, 1250);
+    } else {
+      // immediately set without animation
+      coin.style.transition = '';
+      coin.style.transform = toSide === 'CARA' ? 'rotateY(0deg)' : 'rotateY(180deg)';
+      animating = false;
+    }
+  }
+
+  // Core: perform a flip
+  function doFlip(useAnimation=true){
+    const side = randomSide();
+    animateFlip(side, useAnimation);
+
+    // add to history (newest first)
+    const entry = { side, time: Date.now() };
+    history.unshift(entry);
+    // keep reasonable size
+    if(history.length > 200) history = history.slice(0,200);
+    saveHistory();
+    renderAll();
+    // focus aria
+    lastResultEl.textContent = `Último resultado: ${side} (${formatTime(entry.time)})`;
+    lastResultEl.focus?.();
+  }
+
+  // Buttons
+  btnFlip.addEventListener('click', () => doFlip(true));
+  btnQuick.addEventListener('click', () => doFlip(false));
+  btnClear.addEventListener('click', () => {
+    if(!confirm('¿Borrar historial de lanzamientos?')) return;
+    history = [];
+    saveHistory();
+    renderAll();
+  });
+
+  // Keyboard support: Space or Enter triggers flip
+  window.addEventListener('keydown', (ev) => {
+    if(document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) return;
+    if(ev.code === 'Space' || ev.code === 'Enter'){
+      ev.preventDefault();
+      doFlip(true);
+    }
+  });
+
+  // Accessibility: set appropriate roles/labels
+  coin.setAttribute('tabindex','0');
+  coin.addEventListener('keypress', (ev) => {
+    if(ev.key === 'Enter' || ev.key === ' ') doFlip(true);
+  });
+
+})();
+</script>
 </body>
 </html>
